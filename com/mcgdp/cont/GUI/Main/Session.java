@@ -218,3 +218,4 @@ public class Session extends JFrame implements ActionListener {
 		this.nucleo = nucleo;
 	}
 }
+// ################################################################################################ //
