@@ -23,6 +23,7 @@ public class Users {
 		User usuario;
 		
 		conn = uconn.getConnection();
+		System.out.println("SQL_Users [INFO]: Consultando DB Users");
 		
 		String cons = "SELECT uID, usuarios, password, rol FROM usuarios;";
 		
@@ -43,20 +44,26 @@ public class Users {
 			}
 		}
 		catch(SQLException s) {
-			System.out.println("Error en la consulta: "+s.getMessage());
+			System.out.println("SQL_Users [FATAL]: Error en la consulta: "+s.getMessage());
 			JOptionPane.showMessageDialog(null, "Error en la consulta: "+s.getMessage(), "Auxiliar Contable", 
 					JOptionPane.ERROR_MESSAGE);
+			s.printStackTrace();
 		}
 		finally
 		{
 			try {
-			    conn.close();
+				System.out.println("SQL_Users [INFO]: Cerrando consulta...");
+				conn.close();
 			    uconn.disconnect();
-			   } catch (SQLException e) {
-			    e.printStackTrace();
+			   } 
+			catch (SQLException e) {
+				System.out.println("SQL_Users [FATAL]: Error al cerrar DB: "+e.getMessage());
+				JOptionPane.showMessageDialog(null, "Error en la consulta: "+e.getMessage(), "Auxiliar Contable", 
+						JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
 			   }
 			  }
-			  return usersList;
+		return usersList;
 	}
 }
 // ####################################################################################################### //

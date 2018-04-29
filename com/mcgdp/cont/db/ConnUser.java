@@ -21,31 +21,34 @@ public class ConnUser {
 			
 			conn = DriverManager.getConnection(url);												// Se obtiene conexión
 			if(conn != null) {																		// Conexión hallada
-				System.out.println("Conexión exitosa.");
+				System.out.println("SQL [INFO]: Conexión exitosa.");
 			}
 			else {																					// Conexión es null
-				System.out.println("Conexión fallida. Datos no localizados");
+				System.out.println("SQL [ERROR]: Conexión fallida. DB no localizada.");
 			}
 		} 
 		catch (ClassNotFoundException e) {															// Errores de clase
-			JOptionPane.showMessageDialog(frmSQL, "Error Fatal: " + e.getMessage() 
+			JOptionPane.showMessageDialog(frmSQL, "Error Fatal en clase: " + e.getMessage() 
 			+ ", contacte a soporte técnico.", "Auxiliar Contable", JOptionPane.ERROR_MESSAGE);
-			System.out.println("Error Fatal: " + e.getMessage());
+			System.out.println("SQL [FATAL]: Error Fatal: " + e.getMessage());
+			e.printStackTrace();
 		} 
 		catch (SQLException e) {																	// Errores de BD
-			JOptionPane.showMessageDialog(frmSQL, "Error Fatal: " + e.getMessage() 
+			JOptionPane.showMessageDialog(frmSQL, "Error Fatal en DB: " + e.getMessage() 
 			+ ", contacte a soporte técnico.", "Auxiliar Contable", JOptionPane.ERROR_MESSAGE);
-			System.out.println("Error Fatal: " + e.getMessage());
+			System.out.println("SQL [FATAL] Error Fatal: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
 	// Desconexión de base de datos
 		public void disconnect() {
+			System.out.println("SQL [INFO]: Conexión cerrada.");
 			conn = null;
 		}
 	
 	// Getter de conexión
-	public Connection getConnection( ) {
+	public Connection getConnection() {
 		return conn;
 	}
 }// ################################################################################################################ //

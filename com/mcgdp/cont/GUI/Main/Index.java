@@ -7,7 +7,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import mcgdp.cont.GUI.tasks.POs;
-import mcgdp.cont.main.Core;
 import mcgdp.cont.main.Sys;
 
 public class Index extends JFrame implements ActionListener {
@@ -21,8 +20,8 @@ public class Index extends JFrame implements ActionListener {
 	private JButton btnUser, btnInfo, btnPOs, btnBills, btnPays, btnLogout;
 	private Image icon, user, info, pos, bills, pays, logout; 
 	private Sys sis;
-	private Core nucleo;
 	private POs oc;
+	private String role = "Sistema";
 	private static final long serialVersionUID = 1L;
 	
 	//Constructor
@@ -33,12 +32,13 @@ public class Index extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setResizable(false);
-		System.out.println("Auxiliar Contable iniciado.");
+		setPerm();
+		System.out.println("Index [INFO]: Auxiliar Contable iniciado.");
 	}
 	
 	// Inicialización de componentes
 	private void initialize() {
-		System.out.println("Iniciando Auxiliar Contable...");
+		System.out.println("Index [INFO]: Iniciando Auxiliar Contable...");
 		cont = getContentPane();																	// Contenedor instanciado
 		cont.setLayout(null);																		// Layout absoluto
 		
@@ -62,9 +62,10 @@ public class Index extends JFrame implements ActionListener {
 		btnInfo.addActionListener(this);
 		btnInfo.setBounds(691, 15, 50, 50);
 		
-		lblPerm = new JLabel("Sistema");
+		lblPerm = new JLabel("");
 		lblPerm.setHorizontalAlignment(SwingConstants.CENTER);										// Propiedades de la etiqueta
 		lblPerm.setBounds(347, 60, 107, 14);														// Permisos
+		lblPerm.setText(getRole());
 		
 		lblPOs = new JLabel("");
 		lblPOs.setHorizontalAlignment(SwingConstants.CENTER);										// Propiedades de la etiqueta
@@ -122,13 +123,21 @@ public class Index extends JFrame implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == btnPOs) {
-			oc = new POs();
-			oc.main(null);
-			close();
+		try {
+			if(e.getSource() == btnPOs) {															// Ejecución del botón
+				oc = new POs();																		// Iniciando Ordenes de Compra
+				oc.setVisible(true);
+				close();																			// Cerrando ventana Inicio
+			}
+			if(e.getSource() == btnLogout) {														// Ejecución del botón
+				logout();																			// Cerrar sesión
+			}
 		}
-		if(e.getSource() == btnLogout) {															// Ejecución del botón
-			logout();																				// Cerrar sesión
+		catch(Exception err) {
+			System.out.println("Index [FATAL]: Error Fatal: " + err.getMessage()	+				// Errores
+					err.getCause());
+					JOptionPane.showMessageDialog(this, "Error Fatal, contacte a soporte técnico", 
+							"Auxiliar Contable", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
@@ -136,7 +145,7 @@ public class Index extends JFrame implements ActionListener {
 		if(JOptionPane.showConfirmDialog(this, 														// Cerrando sesión
 				"¿Seguro que deseas cerrar la sesión?", "Auxiliar Contable", 						// Ventana de confirmación
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_NO_OPTION) {
-			System.out.println("Saliendo del Auxiliar Contable...");
+			System.out.println("Index [INFO]: Saliendo del Auxiliar Contable...");
 			sis = new Sys();
 			sis.init();
 			close();																				// Cerrando ventanas
@@ -147,20 +156,28 @@ public class Index extends JFrame implements ActionListener {
 		dispose();
 	}
 	
+	// Getters
+	public String getRole() {
+		return role;
+	}
+	
 	// Setters
-	public void setRole(String role) {																// Extrayendo permisos
-		System.out.println(role);
-		if(role.equals("Administrator")) {
-			System.out.println("Usuario reconocido como: Administrador");							// Como Administrador
+	public void setRole(String role) {
+		this.role = role;
+	}
+	
+	public void setPerm() {																			// Extrayendo permisos
+		if(getRole().equals("Administrator") || getRole().equals("Sistema")) {
+			System.out.println("Index [INFO]: Usuario reconocido como: Administrador");				// Como Administrador
 			lblPerm.setText("Administrador");
 		}
-		else if(role.equals("Standard")) {
-			System.out.println("Usuario reconocido como: Estándar");								// Como Usuario
+		else if(getRole().equals("Standard")) {
+			System.out.println("Index [INFO]: Usuario reconocido como: Estándar");					// Como Usuario
 			lblPerm.setText("Editor");
 			btnUser.setEnabled(false);
 		} 
-		else if (role.equals("Guest")) {
-			System.out.println("Usuario reconocido como: Invitado");								// Como Invitado
+		else if (getRole().equals("Guest")) {
+			System.out.println("Index [INFO]: Usuario reconocido como: Invitado");					// Como Invitado
 			lblPerm.setText("Invitado");
 			btnUser.setEnabled(false);
 			btnPOs.setEnabled(false);
@@ -168,16 +185,12 @@ public class Index extends JFrame implements ActionListener {
 			btnPays.setEnabled(false);
 		}
 		else {
-			System.out.println("Error Fatal: Fallo en seguridad. Cierre inmediato");				// Error
+			System.out.println("Index [ERROR]: Fallo en seguridad. Cierre inmediato");				// Error
 			JOptionPane.showMessageDialog(this, "Error Fatal: "
 					+ "Fallo en seguridad. Cierre inmediato", "Auxiliar Contable", 
 					JOptionPane.INFORMATION_MESSAGE);
 			close();																				// Cierre inesperado
 		}
 	} 
-	
-	public void setCore(Core nucleo) {																// Relación con el núcleo
-		this.nucleo = nucleo;
-	}
 }
 // ############################################################################################### //
