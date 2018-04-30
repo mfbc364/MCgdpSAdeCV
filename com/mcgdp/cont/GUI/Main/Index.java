@@ -8,6 +8,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import mcgdp.cont.GUI.tasks.POs;
+import mcgdp.cont.GUI.tasks.Pays;
 import mcgdp.cont.main.Sys;
 
 public class Index extends JFrame implements ActionListener {
@@ -22,6 +23,7 @@ public class Index extends JFrame implements ActionListener {
 	private Image icon, user, info, pos, bills, pays, logout; 
 	private Sys sis;
 	private POs oc;
+	private Pays p;
 	private String role = "Sistema";
 	private static final long serialVersionUID = 1L;
 	
@@ -129,6 +131,11 @@ public class Index extends JFrame implements ActionListener {
 				oc = new POs();																		// Iniciando Ordenes de Compra
 				oc.setVisible(true);
 				close();																			// Cerrando ventana Inicio
+			}
+			if(e.getSource() == btnPays) {
+				p = new Pays();
+				p.main(null);
+				close();
 			}
 			if(e.getSource() == btnLogout) {														// Ejecución del botón
 				logout();																			// Cerrar sesión

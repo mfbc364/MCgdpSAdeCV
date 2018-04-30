@@ -28,7 +28,7 @@ public class Session extends JFrame implements ActionListener {
 	private Core nucleo;
 	private Index inicio;
 	private static final long serialVersionUID = 1L;
-	private static Users users = new Users();
+	private static Users users;
 	
 	// Constructor
 	public Session() {
@@ -211,10 +211,11 @@ public class Session extends JFrame implements ActionListener {
 	
 	// Cargar usuarios en combo
 	private void cargarUsuarios() {  
+		users = new Users();
 		ArrayList <User> usersList = users.consListaUsuarios();
 		
 		for (int i = 0; i < usersList.size(); i++) {
-			userCombo.addItem(usersList.get(i).getUsuarios());
+			userCombo.addItem(usersList.get(i).getUsuario());
 		}
 	}
 	

@@ -1,19 +1,17 @@
+// ######################################################################################################## //
 package mcgdp.cont.db.vo;
 
 public class User {
 	// Parámetros de clase
-	private int uID;
-	private String usuarios;
+	private String usuario;
 	private String password;
 	private String rol;
+	private String puesto;
+	private int ID;
 	
-	// Getters
-	public int getUID() {
-		return uID;
-	}
-	
-	public String getUsuarios() {
-		return usuarios;
+	// Getters	
+	public String getUsuario() {
+		return usuario;
 	}
 	
 	public String getPassword() {
@@ -24,13 +22,17 @@ public class User {
 		return rol;
 	}
 	
-	// Setters
-	public void setUID(int uID) {
-		this.uID = uID;
+	public String getPuesto() {
+		return puesto;
 	}
 	
-	public void setUsuarios(String usuarios) {
-		this.usuarios = usuarios;
+	public int getID() {
+		return ID;
+	}
+	
+	// Setters
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
 	}
 	
 	public void setPassword(String password) {
@@ -39,6 +41,14 @@ public class User {
 	
 	public void setRol(String rol) {
 		this.rol = rol;
+	}
+	
+	public void setPuesto(String puesto) {
+		this.puesto = puesto;
+	}
+	
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 }
 // ######################################################################################################## //
