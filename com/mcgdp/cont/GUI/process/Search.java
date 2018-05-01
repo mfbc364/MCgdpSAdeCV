@@ -16,11 +16,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import mcgdp.cont.process.SearchDB;
-import mcgdp.cont.GUI.tasks.POs;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -46,19 +46,19 @@ public class Search extends JDialog implements ActionListener{
 	private JPanel panel;
 	private JTable tableSearch;
 	private JTextArea txtSearch;
-	private POs oc = new POs();
 	private static final long serialVersionUID = 1L;
 	private SearchDB busqueda;
 	private String[] titles;
+	private int key;
 	
 	public Search() {
-		setTitles(oc.getTitles());
 		initialize();
 		setTitle("Auxiliar Contable");
-		setSize(800, 400);
+		setSize(450, 300);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setResizable(false);
+		getRootPane().setDefaultButton(btnSearch);
 		System.out.println("Search [INFO]: Ventana Busqueda iniciada.");
 	}
 	
@@ -94,7 +94,6 @@ public class Search extends JDialog implements ActionListener{
 		
 		comboFilter = new JComboBox<String>();														// Propiedades del combo
 		comboFilter.setBounds(289, 11, 135, 20);													// Filtro
-		comboFilter.setModel(new DefaultComboBoxModel<String>(getTitles()));
 		
 		separatorTop = new JSeparator();															// Propiedades del separador
 		separatorTop.setBounds(10, 39, 412, 2);														// Arriba
@@ -111,7 +110,7 @@ public class Search extends JDialog implements ActionListener{
 		separatorBot.setBounds(10, 222, 412, 2);													// Abajo
 		
 		btnExit = new JButton("Salir");																// Propiedades del botón
-		btnExit.setBounds(265, 228, 65, 23);														// Salir
+		btnExit.setBounds(190, 230, 70, 35);														// Salir
 		btnExit.addActionListener(this);
 		
 		// Componentes agregados al panel
@@ -134,17 +133,30 @@ public class Search extends JDialog implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if(e.getSource() == btnExit) {
-				close();
+			if(e.getSource() == btnExit) {															// Botón Salir presionado
+				close();																			// Cerrando ventana Búsqueda
 			}
-			if(e.getSource() == btnSearch) {
-				String search = txtSearch.getText();
-				String filter = comboFilter.getSelectedItem().toString();
+			if(e.getSource() == btnSearch) {														// Botón Buscar presionado
+				String search = txtSearch.getText();												// Obteniendo entrada
+				String filter = comboFilter.getSelectedItem().toString();							// Obteniendo filtro
 				
 				busqueda = new SearchDB();
-				String[][] matriz = busqueda.obtenerMatrizProcess(search, filter);
-				
-				construirTableResults(getTitles(), matriz);
+				switch(getKey()) {
+				case 1:	
+					String[][] matriz1 = busqueda.obtenerMatrizOrders(search, filter);;				// Realizando búsqueda
+					construirTableResults(getTitles(), matriz1);									// Analizando resultados
+					break;
+				case 2:
+					String[][] matriz2 = busqueda.obtenerMatrizPays(search, filter);;				// Realizando búsqueda
+					construirTableResults(getTitles(), matriz2);									// Analizando resultados
+					break;
+				case 3:
+					String[][] matriz3 = busqueda.obtenerMatrizBills(search, filter);;				// Realizando búsqueda
+					construirTableResults(getTitles(), matriz3);									// Analizando resultados
+					break;
+				default:
+					throw new IllegalArgumentException();
+				}
 			}
 		}
 		catch (Exception err) {
@@ -161,9 +173,25 @@ public class Search extends JDialog implements ActionListener{
 	private void construirTableResults(String title[], String data[][]) {							// Tabla de datos de en proceso
 		System.out.println("Search [INFO]: Creando tabla 'Resultados'...");
 		
-		tableSearch = new JTable(data, title);
+		tableSearch = new JTable(data, title) {														// Propiedades de la tabla
+			private static final long serialVersionUID = 1L;										// Búsqueda
+			public boolean isCellEditable(int row, int column) {									// Desactivando edición
+				return false;																		// de tabla
+			};
+			
+			@Override
+            public Class<?> getColumnClass(int column) {											// Obteniendo columnas
+                return getValueAt(0, column).getClass();
+            }
+		};
 		
 		if(data.length != 0) {																		// Si existen datos
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();				// Centrando datos
+			centerRenderer.setHorizontalAlignment(JLabel.CENTER);									// de tabla
+			for(int i = 0; i < data.length; i++) {
+				tableSearch.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);			// Centrando columnas
+			}
+			
 			resizeColumnWidth(tableSearch);															// Propiedades de la tabla
 			tableSearch.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);									// En proceso
 			scrollSearch.setViewportView(tableSearch);
@@ -177,29 +205,41 @@ public class Search extends JDialog implements ActionListener{
 	}
 	
 	// Modificación de tamaño de columnas
-		private void resizeColumnWidth(JTable table) {
-			final TableColumnModel columnModel = table.getColumnModel();								// Obteniendo modelo de tabla
-		    for (int column = 0; column < table.getColumnCount(); column++) {							// Recorriendo columnas
-		        int width = 15;																			// Anchura mínima
-		        for (int row = 0; row < table.getRowCount(); row++) {									// Recorriendo datos de columna
-		            TableCellRenderer renderer = table.getCellRenderer(row, column);
-		            Component comp = table.prepareRenderer(renderer, row, column);
-		            width = Math.max(comp.getPreferredSize().width +1 , width);
-		        }
-		        if(width > 300)
-		            width=300;
-		        columnModel.getColumn(column).setPreferredWidth(width);									// Asignando tamaño a columna 
+	private void resizeColumnWidth(JTable table) {
+		final TableColumnModel columnModel = table.getColumnModel();								// Obteniendo modelo de tabla
+		for (int column = 0; column < table.getColumnCount(); column++) {							// Recorriendo columnas
+			int width = 50;																			// Anchura mínima
+		    for (int row = 0; row < table.getRowCount(); row++) {									// Recorriendo datos de columna
+		    	TableCellRenderer renderer = table.getCellRenderer(row, column);
+		        Component comp = table.prepareRenderer(renderer, row, column);
+		        width = Math.max(comp.getPreferredSize().width +1 , width);
+		    }
+		    if(width > 300)
+		        width=300;
+		        columnModel.getColumn(column).setPreferredWidth(width);								// Asignando tamaño a columna 
 		    }
 		}
 	
 	// Getters
-	public String[] getTitles() {
+	private String[] getTitles() {
 		return titles;
+	}
+	
+	private int getKey() {
+		return key;
 	}
 	
 	// Setters
 	public void setTitles(ArrayList<String> titles) {
 		this.titles = titles.toArray(new String[titles.size()]); 
+	}
+	
+	public void setCombo() {
+		comboFilter.setModel(new DefaultComboBoxModel<String>(getTitles()));
+	}
+	
+	public void setKey(int key) {
+		this.key = key;
 	}
 	
 	// Cierre de ventana

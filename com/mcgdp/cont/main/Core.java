@@ -27,6 +27,7 @@ public class Core {
 		return procesos.getStatus();
 	}
 
+	// Se asigna rol a la sesión
 	public void setRole(String role) {
 		login.setRole(role);
 	}

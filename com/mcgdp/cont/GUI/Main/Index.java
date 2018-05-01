@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.*;
 import javax.swing.*;
 
+import mcgdp.cont.GUI.tasks.Bills;
+import mcgdp.cont.GUI.tasks.Info;
 import mcgdp.cont.GUI.tasks.POs;
 import mcgdp.cont.GUI.tasks.Pays;
 import mcgdp.cont.main.Sys;
@@ -22,8 +24,10 @@ public class Index extends JFrame implements ActionListener {
 	private JButton btnUser, btnInfo, btnPOs, btnBills, btnPays, btnLogout;
 	private Image icon, user, info, pos, bills, pays, logout; 
 	private Sys sis;
+	private Info i;
 	private POs oc;
 	private Pays p;
+	private Bills b;
 	private String role = "Sistema";
 	private static final long serialVersionUID = 1L;
 	
@@ -127,15 +131,30 @@ public class Index extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			if(e.getSource() == btnPOs) {															// Ejecución del botón
+			if(e.getSource() == btnInfo) {
+				i = new Info();
+				i.setVisible(true);
+			}
+			if(e.getSource() == btnPOs) {															// Ejecución del botón POs
 				oc = new POs();																		// Iniciando Ordenes de Compra
+				oc.setRole(getRole());
+				oc.setPerm();
 				oc.setVisible(true);
 				close();																			// Cerrando ventana Inicio
 			}
-			if(e.getSource() == btnPays) {
-				p = new Pays();
-				p.main(null);
-				close();
+			if(e.getSource() == btnBills) {															// Ejecución del botón Bills
+				b = new Bills();																	// Iniciando Cuentas por Pagar
+				b.setRole(getRole());
+				b.setPerm();
+				b.setVisible(true);
+				close();																			// Cerrando ventana Inicio
+			}
+			if(e.getSource() == btnPays) {															// Ejecución del botón Pays
+				p = new Pays();																		// Iniciando Cuentas por Cobrar
+				p.setRole(getRole());
+				p.setPerm();
+				p.setVisible(true);
+				close();																			// Cerrando ventana Inicio
 			}
 			if(e.getSource() == btnLogout) {														// Ejecución del botón
 				logout();																			// Cerrar sesión
@@ -144,12 +163,13 @@ public class Index extends JFrame implements ActionListener {
 		catch(Exception err) {
 			System.out.println("Index [FATAL]: Error Fatal: " + err.getMessage()	+				// Errores
 					err.getCause());
+			err.printStackTrace();
 					JOptionPane.showMessageDialog(this, "Error Fatal, contacte a soporte técnico", 
 							"Auxiliar Contable", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	
-	public void logout() {
+	private void logout() {
 		if(JOptionPane.showConfirmDialog(this, 														// Cerrando sesión
 				"¿Seguro que deseas cerrar la sesión?", "Auxiliar Contable", 						// Ventana de confirmación
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_NO_OPTION) {
@@ -160,12 +180,12 @@ public class Index extends JFrame implements ActionListener {
 			}
 	}
 	
-	public void close() {																			// Cerrando aplicación
+	private void close() {																			// Cerrando aplicación
 		dispose();
 	}
 	
 	// Getters
-	public String getRole() {
+	private String getRole() {
 		return role;
 	}
 	

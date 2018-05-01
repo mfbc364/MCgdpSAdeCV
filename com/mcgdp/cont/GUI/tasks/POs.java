@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
@@ -29,7 +30,7 @@ import mcgdp.cont.process.*;
 
 public class POs extends JFrame implements ActionListener {
 	 /** 
-	  * Interfaz gráfica del inicio
+	  * Interfaz gráfica de las ordenes de compra
 	 **/
 	
 	// Parámetros de ordenes de compra
@@ -42,6 +43,7 @@ public class POs extends JFrame implements ActionListener {
 	private JSeparator separatorTop, separatorMid, separatorBot;
 	private Image icon, back, search, add, edit, del, process, ok, cancel;
 	private ArrayList<String> titles;
+	private String role;
 	private Index inicio;
 	private Load cargar;
 	private Search busqueda;
@@ -188,6 +190,9 @@ public class POs extends JFrame implements ActionListener {
 			}
 			if(e.getSource() == btnSearch) {														// Botón Buscar presionado
 				busqueda = new Search();
+				busqueda.setTitles(getTitles());
+				busqueda.setCombo();
+				busqueda.setKey(1);
 				busqueda.setVisible(true);
 			}
 		}
@@ -208,13 +213,31 @@ public class POs extends JFrame implements ActionListener {
 		String title[] = getTitles().toArray(new String[getTitles().size()]);						// Títulos
 		
 		cargar = new Load();
-		String data[][] = cargar.obtenerMatrizProcess("In_progress");								// Datos
+		String data[][] = cargar.obtenerMatrizOrders("In_progress");								// Datos
 		
 		if(data.length != 0) {																		// Si existen datos
-			tableProcess = new JTable(data, title);													// Propiedades de la tabla
-			resizeColumnWidth(tableProcess);														// En proceso
+			tableProcess = new JTable(data, title) {												// Propiedades de la tabla
+				private static final long serialVersionUID = 1L;									// En proceso
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				};
+				
+				@Override
+	            public Class<?> getColumnClass(int column) {
+	                return getValueAt(0, column).getClass();
+	            }
+			};
+			
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+	        for(int i = 0; i < data.length; i++) {
+	        	tableProcess.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	        }
+	        
+			resizeColumnWidth(tableProcess);
 			tableProcess.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			scrollProcess.setViewportView(tableProcess);
+			tableProcess.setCellSelectionEnabled(false);
 			System.out.println("POs [INFO]: Tabla creada: 'En proceso...'");
 		}
 		else {																						// Si no existen datos
@@ -222,7 +245,7 @@ public class POs extends JFrame implements ActionListener {
 			lblNoProcess.setFont(new Font("Tahoma", Font.PLAIN, 25));								// No hay en proceso
 			lblNoProcess.setHorizontalAlignment(SwingConstants.CENTER);
 			scrollProcess.setViewportView(lblNoProcess);
-			System.out.println("POs [INFO]: Tabla En proceso... no creada por falta de datos");
+			System.out.println("POs [INFO]: Tabla 'En proceso...' no creada por falta de datos");
 		}
 	}
 	
@@ -232,13 +255,31 @@ public class POs extends JFrame implements ActionListener {
 		String title[] = getTitles().toArray(new String[getTitles().size()]);						// Títulos
 		
 		cargar = new Load();
-		String data[][] = cargar.obtenerMatrizProcess("Ok");										// Datos
+		String data[][] = cargar.obtenerMatrizOrders("Ok");											// Datos
 		
 		if(data.length != 0) {																		// Si existen datos
-			tableComplets = new JTable(data, title);												// Propiedades de la tabla
-			resizeColumnWidth(tableComplets);														// Completos
+			tableComplets = new JTable(data, title) {												// Propiedades de la tabla
+				private static final long serialVersionUID = 1L;									// Completos
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				};
+				
+				@Override
+	            public Class<?> getColumnClass(int column) {
+	                return getValueAt(0, column).getClass();
+	            }
+			};
+			
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+	        for(int i = 0; i < data.length; i++) {
+	        	tableComplets.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	        }
+			
+			resizeColumnWidth(tableComplets);
 			tableComplets.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			scrollComplets.setViewportView(tableComplets);
+			tableComplets.setCellSelectionEnabled(false);
 			System.out.println("POs [INFO]: Tabla creada: 'Completos'");
 		}
 		else {																						// Si no existen datos
@@ -256,13 +297,31 @@ public class POs extends JFrame implements ActionListener {
 		String title[] = getTitles().toArray(new String[getTitles().size()]);						// Títulos
 					
 		cargar = new Load();
-		String data[][] = cargar.obtenerMatrizProcess("Canceled");									// Datos
+		String data[][] = cargar.obtenerMatrizOrders("Canceled");									// Datos
 					
 		if(data.length != 0) {																		// Si existen datos
-			tableCancelled = new JTable(data, title);												// Propiedades de la tabla
-			resizeColumnWidth(tableCancelled);														// Cancelados
+			tableCancelled = new JTable(data, title) {												// Propiedades de la tabla
+				private static final long serialVersionUID = 1L;									// Cancelados
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				};
+				
+				@Override
+	            public Class<?> getColumnClass(int column) {
+	                return getValueAt(0, column).getClass();
+	            }
+			};
+			
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+	        for(int i = 0; i < data.length; i++) {
+	        	tableCancelled.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	        }
+			
+			resizeColumnWidth(tableCancelled);
 			tableCancelled.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			scrollCancelled.setViewportView(tableCancelled);
+			tableCancelled.setCellSelectionEnabled(false);
 			System.out.println("POs [INFO]: Tabla creada: 'Cancelados'");
 		}
 		else {																						// Si no existen datos
@@ -279,14 +338,14 @@ public class POs extends JFrame implements ActionListener {
 	private void resizeColumnWidth(JTable table) {
 		final TableColumnModel columnModel = table.getColumnModel();								// Obteniendo modelo de tabla
 	    for (int column = 0; column < table.getColumnCount(); column++) {							// Recorriendo columnas
-	        int width = 15;																			// Anchura mínima
+	        int width = 140;																		// Anchura mínima
 	        for (int row = 0; row < table.getRowCount(); row++) {									// Recorriendo datos de columna
 	            TableCellRenderer renderer = table.getCellRenderer(row, column);
 	            Component comp = table.prepareRenderer(renderer, row, column);
 	            width = Math.max(comp.getPreferredSize().width +1 , width);
 	        }
-	        if(width > 300)
-	            width=300;
+	        if(width > 400)
+	            width=400;
 	        columnModel.getColumn(column).setPreferredWidth(width);									// Asignando tamaño a columna 
 	    }
 	}
@@ -303,33 +362,60 @@ public class POs extends JFrame implements ActionListener {
 		titles.add("Ciudad");
 		titles.add("Código Postal");
 		titles.add("Pais");
-		titles.add("Cantidad");
-		titles.add("Unidad de medida");
 		titles.add("Descripción");
+		titles.add("Unidad de medida");
+		titles.add("Cantidad");
 		titles.add("Precio Unitario");
 		titles.add("Total");
 		titles.add("Divisa");
 	}
 	
+	public void setRole(String role) {
+		this.role = role;
+	}
+	
+	public void setPerm() {																			// Extrayendo permisos
+		if(getRole().equals("Administrator") || getRole().equals("Sistema")) {
+			System.out.println("POs [INFO]: Usuario reconocido como: Administrador");				// Como Administrador
+		}
+		else if(getRole().equals("Standard")) {
+			System.out.println("POs [INFO]: Usuario reconocido como: Estándar");					// Como Usuario
+			btnDel.setEnabled(false);
+		}
+		else {
+			System.out.println("POs [ERROR]: Fallo en seguridad. Cierre inmediato");				// Error
+			JOptionPane.showMessageDialog(this, "Error Fatal: "
+					+ "Fallo en seguridad. Cierre inmediato", "Auxiliar Contable", 
+					JOptionPane.INFORMATION_MESSAGE);
+			close();																				// Cierre inesperado
+		}
+	}
+	
 	// Getters
-	public ArrayList<String> getTitles() {
+	private ArrayList<String> getTitles() {
 		return titles;
 	}
 	
+	private String getRole() {
+		return role;
+	}
+	
 	// Confirmación de retroceso
-	public void exit() {																			// Cerrando ventana
+	private void exit() {																			// Cerrando ventana
 		if(JOptionPane.showConfirmDialog(this,														// Ventana de confirmación
 			"¿Seguro que deseas salir de Ordenes de Compra?", "Auxiliar Contable",
 			JOptionPane.YES_NO_OPTION) == JOptionPane.YES_NO_OPTION) {
 			System.out.println("Pos [INFO]: Saliendo de Ordenes de compra...");
 			inicio = new Index();
+			inicio.setRole(getRole());
+			inicio.setPerm();
 			inicio.setVisible(true);																// Abriendo pantalla inicio
 			close();																				// Cerrando ventana
 		}
 	}
 	
 	// Cierre de la ventana
-	public void close() {
+	private void close() {
 		dispose();
 	}
 }

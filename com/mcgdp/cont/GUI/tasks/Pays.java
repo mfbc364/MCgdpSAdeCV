@@ -1,199 +1,367 @@
+// ###################################################################################################################################### //
 package mcgdp.cont.GUI.tasks;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.EventQueue;
+import java.util.ArrayList;
+import java.awt.Font;
 import java.awt.Image;
 
-import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import java.awt.event.ActionEvent;
-import javax.swing.JSeparator;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-
-import mcgdp.cont.GUI.Main.Index;
-
-import java.awt.Font;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
-public class Pays {
+import mcgdp.cont.GUI.Main.Index;
+import mcgdp.cont.GUI.process.Search;
+import mcgdp.cont.process.Load;
 
-	private JFrame frmACPO;
-	private JTable tableProcess;
-	private JTable tableComplets;
-	private JTable tableCanceled;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Pays window = new Pays();
-					window.frmACPO.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the application.
-	 */
+public class Pays extends JFrame implements ActionListener {
+	/** 
+	  * Interfaz gráfica de las cuentas por cobrar
+	 **/
+	
+	// Parámetros de cuentas por cobrar
+	private Container cont;
+	private Image icon, back, search, add, edit, del, review, ok;
+	private JButton btnBack, btnSearch, btnAdd, btnEdit, btnDel;
+	private JLabel lblReview, lblApproved, lblNoReview, lblNoApproved;
+	private JPanel panel;
+	private JScrollPane scrollPanel, scrollReview, scrollApproved;
+	private JSeparator separatorTop, separatorBot;
+	private JTable tableReview, tableApproved;
+	private ArrayList<String> titles;
+	private String role;
+	private Index inicio;
+	private Load cargar;
+	private Search busqueda;
+	private static final long serialVersionUID = 1L;
+	
+	// Constructor
 	public Pays() {
 		initialize();
+		setTitle("Auxiliar Contable");
+		setSize(1280, 720);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setResizable(false);
+		setTitles();
+		construirTableReview();
+		construirTableApproved();
+		System.out.println("Pays [INFO]: Pays iniciada.");
 	}
 	
-	public void close() {
-		frmACPO.setVisible(false);
-		frmACPO.dispose();
-	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
+	// Inicialización de componentes
 	private void initialize() {
-		frmACPO = new JFrame();
-		frmACPO.setTitle("Auxiliar Contable");
-		frmACPO.setBounds(43, 24, 1280, 720);
-		frmACPO.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmACPO.setResizable(false);
-		frmACPO.getContentPane().setLayout(null);
-		ImageIcon icon = new ImageIcon("img/icon-sm.png");
-		frmACPO.setIconImage(icon.getImage());
+		System.out.println("Pays [INFO]: Iniciando ventana de Pays...");
+		cont = getContentPane();																			// Contenedor instanciado
+		cont.setLayout(null);																				// Layout absoluto
 		
-		JButton btnBack = new JButton("Atrás");
-		btnBack.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		Image back = new ImageIcon(this.getClass().getResource("/back.png")).getImage();
+		icon = new ImageIcon(this.getClass().getResource("/icon-sm.png")).getImage();						// Ícono encontrado
+		setIconImage(icon);																					// Ícono seleccionado
+		
+		// Componentes del contenedor del Frame
+		btnBack = new JButton("Atrás");																		// Propiedades del botón
+		back = new ImageIcon(this.getClass().getResource("/back.png")).getImage();							// Atrás
 		btnBack.setIcon(new ImageIcon(back));
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				Index i = new Index();
-				i.setVisible(true);
-				close();
-			}
-		});
+		btnBack.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnBack.setBounds(0, 0, 119, 40);
-		frmACPO.getContentPane().add(btnBack);
+		btnBack.addActionListener(this);
 		
-		JButton btnSearch = new JButton("Búsqueda");
+		btnSearch = new JButton("Búsqueda");																// Propiedades del botón
+		search = new ImageIcon(this.getClass().getResource("/search.png")).getImage();						// Búsqueda
+		btnSearch.setIcon(new ImageIcon(search));
 		btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnSearch.setBounds(176, 0, 144, 40);
-		frmACPO.getContentPane().add(btnSearch);
-		btnSearch.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		Image search = new ImageIcon(this.getClass().getResource("/search.png")).getImage();
-		btnSearch.setIcon(new ImageIcon(search));
+		btnSearch.addActionListener(this);
 		
-		JButton btnAdd = new JButton("Añadir");
-		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		btnAdd.setBounds(360, 0, 119, 40);
-		frmACPO.getContentPane().add(btnAdd);
-		Image add = new ImageIcon(this.getClass().getResource("/add.png")).getImage();
+		btnAdd = new JButton("Añadir");																		// Propiedades del botón
+		add = new ImageIcon(this.getClass().getResource("/add.png")).getImage();							// Añadir
 		btnAdd.setIcon(new ImageIcon(add));
+		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnAdd.setBounds(360, 0, 119, 40);
+		btnAdd.addActionListener(this);
 		
-		JButton btnEdit = new JButton("Editar");
-		btnEdit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
+		btnEdit = new JButton("Editar");																	// Propiedades del botón
+		edit = new ImageIcon(this.getClass().getResource("/edit.png")).getImage();							// Editar
+		btnEdit.setIcon(new ImageIcon(edit));
 		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnEdit.setBounds(530, 0, 119, 40);
-		frmACPO.getContentPane().add(btnEdit);
-		Image edit = new ImageIcon(this.getClass().getResource("/edit.png")).getImage();
-		btnEdit.setIcon(new ImageIcon(edit));
+		btnEdit.addActionListener(this);
 		
-		JButton btnDel = new JButton("Eliminar");
-		btnDel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
+		btnDel = new JButton("Eliminar");																	// Propiedades del botón
+		del = new ImageIcon(this.getClass().getResource("/delete.png")).getImage();							// Eliminar
+		btnDel.setIcon(new ImageIcon(del));
 		btnDel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnDel.setBounds(700, 0, 119, 40);
-		frmACPO.getContentPane().add(btnDel);
-		Image del = new ImageIcon(this.getClass().getResource("/delete.png")).getImage();
-		btnDel.setIcon(new ImageIcon(del));
+		btnDel.addActionListener(this);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 40, 1274, 651);
-		frmACPO.getContentPane().add(scrollPane);
-				
-		JPanel panel = new JPanel();
-		panel.setBorder(null);
-		scrollPane.setViewportView(panel);
+		// Se crea panel con su respectivo scroll
+		scrollPanel = new JScrollPane();																	// Propiedades del scroll
+		scrollPanel.setBounds(0, 40, 1274, 651);															// Panel
+		
+		
+		panel = new JPanel();																				// Generando Panel
+		panel.setBorder(null);																				// Propiedades del Panel
 		panel.setLayout(null);
-		panel.setPreferredSize(new Dimension(1254, 1015));
+		panel.setPreferredSize(new Dimension(1254, 689));													// Tamaño ubicado con referencia
+		scrollPanel.setViewportView(panel);																	// al contenedor
 		
-		JLabel lblProcess = new JLabel("En proceso...");
-		lblProcess.setBounds(20, 0, 150, 32);
-		lblProcess.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblProcess.setHorizontalAlignment(SwingConstants.LEFT);
-		panel.add(lblProcess);
-		Image process = new ImageIcon(this.getClass().getResource("/inprocess.png")).getImage();
-		lblProcess.setIcon(new ImageIcon(process));
+			// Componentes del panel
+			lblReview = new JLabel("En revisión...");														// Propiedades de la etiqueta
+			review = new ImageIcon(this.getClass().getResource("/pending.png")).getImage();					// En revisión
+			lblReview.setIcon(new ImageIcon(review));
+			lblReview.setBounds(20, 0, 150, 32);															// Ubicación con referencia
+			lblReview.setFont(new Font("Tahoma", Font.PLAIN, 15));											// al panel
+			lblReview.setHorizontalAlignment(SwingConstants.LEFT);
+			
+			scrollReview = new JScrollPane();																// Propiedades del scroll
+			scrollReview.setBounds(10, 35, 1234, 300);														// En revisión
+			
+			separatorTop = new JSeparator();																// Propiedades del separador
+			separatorTop.setBounds(10, 339, 1234, 2);														// Arriba
+			
+			lblApproved = new JLabel("Aprobadas");															// Propiedades de la etiqueta
+			ok = new ImageIcon(this.getClass().getResource("/ok.png")).getImage();							// Aprobados
+			lblApproved.setIcon(new ImageIcon(ok));
+			lblApproved.setBounds(20, 340, 150, 32);
+			lblApproved.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			
+			scrollApproved = new JScrollPane();																// Propiedades del scroll
+			scrollApproved.setBounds(10, 375, 1234, 300);													// Aprobados
+			
+			separatorBot = new JSeparator();																// Propiedades del separador
+			separatorBot.setBounds(10, 679, 1234, 2);														// Abajo
+			
+		// Componentes agregados al contenedor
+		cont.add(btnBack);
+		cont.add(btnSearch);
+		cont.add(btnAdd);
+		cont.add(btnEdit);
+		cont.add(btnDel);
+		cont.add(scrollPanel);
 		
-		JScrollPane scrollProcess = new JScrollPane();
-		scrollProcess.setBounds(10, 35, 1234, 300);
-		panel.add(scrollProcess);
+		// Componentes agregados al panel
+		panel.add(lblReview);
+		panel.add(scrollReview);
+		panel.add(separatorTop);
+		panel.add(lblApproved);
+		panel.add(scrollApproved);
+		panel.add(separatorBot);
+	}
+	
+	/**
+	 * Métodos de acciones lógicas
+	 */
+	
+	// Eventos de botones
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			if(e.getSource() == btnBack) {																	// Botón Atrás presionado
+				exit();
+			}
+			if(e.getSource() == btnSearch) {																// Botón Buscar presionado
+				busqueda = new Search();
+				busqueda.setTitles(getTitles());
+				busqueda.setCombo();
+				busqueda.setKey(2);
+				busqueda.setVisible(true);
+			}
+		}
+		catch(Exception err) {
+			System.out.println("Pays [FATAL]: Error Fatal: " + err.getMessage() + " " + 					// Errores
+					err.getCause());
+			err.printStackTrace();
+					
+			JOptionPane.showMessageDialog(this, "Error Fatal, contacte a soporte técnico", 
+					"Auxiliar Contable", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	// Creación de datos de tabla En revisión...
+	private void construirTableReview() {																	// Tabla de datos
+		System.out.println("Pays [INFO]: Creando tabla 'En revisión'...");									// En revisión
+			
+		String title[] = getTitles().toArray(new String[getTitles().size()]);								// Títulos
+			
+		cargar = new Load();
+		String data[][] = cargar.obtenerMatrizPays("In_review");											// Datos
+			
+		if(data.length != 0) {																			 	// Si existen datos
+			tableReview = new JTable(data, title) {															// Propiedades de la tabla
+				private static final long serialVersionUID = 1L;											// En revisión
+				public boolean isCellEditable(int row, int column) {										// Desactivando edición
+					return false;																			// de tabla
+				};
+				
+				@Override
+	            public Class<?> getColumnClass(int column) {												// Obteniendo columnas
+	                return getValueAt(0, column).getClass();
+	            }
+		};
 		
-		int x = 0;
-		if(x == 1) {
-		tableProcess = new JTable();
-		scrollProcess.setViewportView(tableProcess);
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();						// Centrando datos
+			centerRenderer.setHorizontalAlignment(JLabel.CENTER);											// de tabla
+			for(int i = 0; i < data.length; i++) {
+				tableReview.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);					// Centrando columnas
+			}
+		
+			resizeColumnWidth(tableReview);
+			tableReview.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			scrollReview.setViewportView(tableReview);
+			tableReview.setCellSelectionEnabled(false);
+			System.out.println("Pays [INFO]: Tabla creada: 'En revisión...'");
+		}
+		else {																								// Si no existen datos
+			lblNoReview = new JLabel("No hay Cuentas de Cobro en Revisión");								// Propiedades de la etiqueta
+			lblNoReview.setFont(new Font("Tahoma", Font.PLAIN, 25));										// No hay en revisión
+			lblNoReview.setHorizontalAlignment(SwingConstants.CENTER);
+			scrollReview.setViewportView(lblNoReview);
+			System.out.println("Pays [INFO]: Tabla 'En revisión...' no creada por falta de datos");
+		}
+	}
+	
+	// Creación de datos de tabla Aprobados
+	private void construirTableApproved() {																	// Tabla de datos
+		System.out.println("Pays [INFO]: Creando tabla 'Aprobados'...");									// Aprobados
+			
+		String title[] = getTitles().toArray(new String[getTitles().size()]);								// Títulos
+			
+		cargar = new Load();
+		String data[][] = cargar.obtenerMatrizPays("Approved");												// Datos
+			
+		if(data.length != 0) {																			 	// Si existen datos
+			tableApproved = new JTable(data, title) {														// Propiedades de la tabla
+				private static final long serialVersionUID = 1L;											// Aprobados
+				public boolean isCellEditable(int row, int column) {										// Desactivando edición
+					return false;																			// de tabla
+				};
+				
+				@Override
+	            public Class<?> getColumnClass(int column) {												// Obteniendo columnas
+	                return getValueAt(0, column).getClass();
+	            }
+			};
+			
+			DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();						// Centrando datos
+	        centerRenderer.setHorizontalAlignment(JLabel.CENTER);											// de tabla
+	        for(int i = 0; i < data.length; i++) {
+	        	tableApproved.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);				// Centrando columnas
+	        }
+			
+			resizeColumnWidth(tableApproved);
+			tableApproved.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			scrollApproved.setViewportView(tableApproved);
+			tableApproved.setCellSelectionEnabled(false);
+			System.out.println("Pays [INFO]: Tabla creada: 'Aprobados'");
+		}
+		else {																								// Si no existen datos
+			lblNoApproved = new JLabel("No hay Cuentas de Cobro Aprobadas");								// Propiedades de la etiqueta
+			lblNoApproved.setFont(new Font("Tahoma", Font.PLAIN, 25));										// No hay aprobados
+			lblNoApproved.setHorizontalAlignment(SwingConstants.CENTER);
+			scrollApproved.setViewportView(lblNoApproved);
+			System.out.println("Pays [INFO]: Tabla 'Aprobados' no creada por falta de datos");
+		}
+	}
+	
+	// Modificación de tamaño de columnas
+	private void resizeColumnWidth(JTable table) {
+		final TableColumnModel columnModel = table.getColumnModel();										// Obteniendo modelo de tabla
+	    for (int column = 0; column < table.getColumnCount(); column++) {									// Recorriendo columnas
+	        int width = 130;																				// Anchura mínima
+	        for (int row = 0; row < table.getRowCount(); row++) {											// Recorriendo datos de columna
+	            TableCellRenderer renderer = table.getCellRenderer(row, column);
+	            Component comp = table.prepareRenderer(renderer, row, column);
+	            width = Math.max(comp.getPreferredSize().width +1 , width);
+	        }
+	        if(width > 400)
+	            width=400;
+	        columnModel.getColumn(column).setPreferredWidth(width);											// Asignando tamaño a columna 
+	    }
+	}
+	
+	// Setters
+	private void setTitles() {
+		titles = new ArrayList<String>();
+		titles.add("RFC");
+		titles.add("Cliente");
+		titles.add("Fecha de emisión");
+		titles.add("Dirección");
+		titles.add("Colonia");
+		titles.add("Ciudad");
+		titles.add("Código Postal");
+		titles.add("Pais");
+		titles.add("Descripción");
+		titles.add("Cantidad");
+		titles.add("Unidad de medida");
+		titles.add("Precio Unitario");
+		titles.add("Impuestos");
+		titles.add("Total");
+		titles.add("Divisa");
+		titles.add("Tipo de Pago");
+		titles.add("Método de Pago ");
+	}	
+	
+	public void setRole(String role) {
+		this.role = role;
+	}
+	
+	public void setPerm() {																			// Extrayendo permisos
+		if(getRole().equals("Administrator") || getRole().equals("Sistema")) {
+			System.out.println("POs [INFO]: Usuario reconocido como: Administrador");				// Como Administrador
+		}
+		else if(getRole().equals("Standard")) {
+			System.out.println("POs [INFO]: Usuario reconocido como: Estándar");					// Como Usuario
+			btnDel.setEnabled(false);
 		}
 		else {
-		JLabel lblNoProcess = new JLabel("No hay Ordenes de Compra en Proceso");
-		lblNoProcess.setFont(new Font("Tahoma", Font.PLAIN, 25));
-		lblNoProcess.setHorizontalAlignment(SwingConstants.CENTER);
-		scrollProcess.setViewportView(lblNoProcess);
+			System.out.println("POs [ERROR]: Fallo en seguridad. Cierre inmediato");				// Error
+			JOptionPane.showMessageDialog(this, "Error Fatal: "
+					+ "Fallo en seguridad. Cierre inmediato", "Auxiliar Contable", 
+					JOptionPane.INFORMATION_MESSAGE);
+			close();																				// Cierre inesperado
 		}
-		JSeparator separatorTop = new JSeparator();
-		separatorTop.setBounds(10, 339, 1234, 2);
-		panel.add(separatorTop);
-		
-		JLabel lblComplets = new JLabel("Completos");
-		lblComplets.setBounds(20, 340, 150, 32);
-		lblComplets.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		panel.add(lblComplets);
-		Image ok = new ImageIcon(this.getClass().getResource("/ok.png")).getImage();
-		lblComplets.setIcon(new ImageIcon(ok));
-		
-		JScrollPane scrollComplets = new JScrollPane();
-		scrollComplets.setBounds(10, 375, 1234, 300);
-		panel.add(scrollComplets);
-		
-		tableComplets = new JTable();
-		scrollComplets.setViewportView(tableComplets);
-				
-		JSeparator separatorBot = new JSeparator();
-		separatorBot.setBounds(10, 679, 1234, 2);
-		panel.add(separatorBot);
-		
-		JLabel lblCanceled = new JLabel("Cancelados");
-		lblCanceled.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblCanceled.setBounds(20, 680, 150, 32);
-		panel.add(lblCanceled);
-		Image cancel = new ImageIcon(this.getClass().getResource("/canceled.png")).getImage();
-		lblCanceled.setIcon(new ImageIcon(cancel));
-		
-		JScrollPane scrollCanceled = new JScrollPane();
-		scrollCanceled.setBounds(10, 715, 1234, 300);
-		panel.add(scrollCanceled);
-		
-		tableCanceled = new JTable();
-		scrollCanceled.setViewportView(tableCanceled);
+	}
+	
+	// Getters
+	private ArrayList<String> getTitles() {
+		return titles;
+	}
+	
+	private String getRole() {
+		return role;
+	}
+	
+	// Confirmación de retroceso
+	private void exit() {																					// Cerrando ventana
+		if(JOptionPane.showConfirmDialog(null,																// Ventana de confirmación
+				"¿Seguro que deseas salir de Cuentas por Cobrar?", "Auxiliar Contable",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_NO_OPTION) {
+				System.out.println("Pos [INFO]: Saliendo de Ordenes de compra...");
+				inicio = new Index();
+				inicio.setRole(getRole());
+				inicio.setPerm();
+				inicio.setVisible(true);																	// Abriendo pantalla inicio
+				close();																					// Cerrando ventana
+		}
+	}
+	
+	// Cierre de la ventana
+	private void close() {
+		dispose();
 	}
 }
-// ############################################################################################# //
+// ###################################################################################################################################### //

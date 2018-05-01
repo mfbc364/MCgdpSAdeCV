@@ -220,9 +220,9 @@ public class Session extends JFrame implements ActionListener {
 	}
 	
 	// Relación con el núcleo
-		public void setCore(Core nucleo) {
-			this.nucleo = nucleo;
-		}
+	public void setCore(Core nucleo) {
+		this.nucleo = nucleo;
+	}
 	
 	// Getters
 	private String getRole() {
